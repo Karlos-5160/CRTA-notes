@@ -1,0 +1,108 @@
+# Penetration testing
+• An attack against a host, network
+or any application to measure and
+identify risks associated with the
+exploitation of a target
+environment.
+
+• More emphasis on reducing
+exposed vulnerabilities etc.
+
+• Scope is limited — 1 to 2 specific
+systems or networks
+
+• Makes assumptions about the
+environment, may not test
+where it isn't told to go
+
+• Uses Tools present at that time
+during testing
+
+
+# Red Teaming
+• Process of using real-world Tactics,
+Techniques employed by threat-
+actors having goals to measure the
+effectiveness of the people,
+technologies etc used to defend an
+environment.
+
+• More emphasis on Training and
+measuring risks & defence
+capabilities of an organization
+
+
+• Specific part of (or the entire )
+organization
+
+• Makes no assumptions;
+attempts to compromise
+everywhere; pivots and changes
+strategy, techniques if/when
+needed
+
+• Constantly researching new
+exploits, vulnerabilities &
+implement attack with new tools
+as soon as it is discovered
+
+
+# De-Militarized Zone Network (DMZ Network) :
+    • It is a network (physical or logical) used to connect hosts that provide an interface to an untrusted external network
+    • The systems that are most vulnerable to attack are tÅose that provide services to
+    users outside of the local area network, such as e-mail, Web and Domain Name
+    System (DNS) servers are present inside a DMZ
+    • The ultimate goal of a DMZ is to allow access to resources from untrusted networks
+    while keeping the private network secured.
+
+
+# • Militarized Zone Network (MZ Network) :
+• Zone having maximum security and is one of the most secure segment in the
+environment.
+• Contains critical information about the organization etc.
+• All operations in the organization is managed from Militarized network.
+
+
+smb - 445
+net bios - 135,137
+
+# Types of payloads
+    • Singles
+        - These are self-contained payload assigned to do a specific task that is, create a user, or a bind shell.
+        - Example: payload/windows/adduser
+
+    • Stagers
+        - These type are payload are used to download large payload to the target machine from the attacker machine.
+        - Creates a network connection between attacker & compromised machine.
+        - Example: payload/windows/shell/bind_tcp
+
+    • Stages
+        - These are the large payload downloaded by the stagers & then executed.
+        - Assigned to do complex tasks like Remote Desktop, meterpreter etc.
+        - Example: payload/windows/shell/bind_tcp
+
+# Types of shells
+    • Shells are non-GUI interaction with the system, one can interact & manage
+    the environment of the system through shell.
+    • It is used for administration purposes & at times described fruitful
+    compared to GUI.
+    • Examples:
+        • In Windows:
+            • Command Prompt
+            • Power Shell
+        • In Linux:
+            • Bash shell
+            . sh shell
+
+# Reverse Shells
+• Here, the target machine connects back to the attacker box.
+• All communication goes through specific TCP ports.
+• We need to have listener active on the attacker machine.
+• We will take example of the swiss army knife tool (aka netcat).
+
+# Bind Shells
+• Here the attacker machine connects to the victim system.
+• The attacker opens a TCP port on the victim machine & host a shell.
+• That means anyone who connect to the target machine & on a
+specific port will be presented with a shell.
+• The shell can then be used to spread the compromise.
