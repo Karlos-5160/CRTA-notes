@@ -53,3 +53,44 @@
     • The tickets (TGT and TGS) are stored in memory and can be extracted for abusing
     purposes as these tickets represent user credentials.
     • The TGS can be used for accessing a specific service of a server in the domain.
+
+
+# Kerberos Authentication Process 
+    
+    - Employee machine to DC
+        1. Domain User Name with
+        current time is sent to DC
+        in encrypted form
+
+        2. DC decrypts the
+        message & perform a check
+        if everything is 0K
+
+    - DC to Employee machine
+        1. Once the verification is
+        complete & correct it sends
+        back an encrypted TGT
+
+        2. Client Stores TGT in
+        memory & it can be re-
+        requested by local
+        session 
+        
+    - Employee machine to DC
+        1. Client sends the current
+        TGT to request TGS from the
+        DC (also tells the service
+        which he/she want to access)
+
+        2. Based on the Domain User
+        privileges & using TGT, a TGS
+        is given to the Domain User
+
+    - Employee machine to Database Server
+        1. Client using the allotted TGS are
+        authenticated as well as authorized
+        to access DB server
+
+        2. Other optional validation requests
+        with the DC is performed.
+
