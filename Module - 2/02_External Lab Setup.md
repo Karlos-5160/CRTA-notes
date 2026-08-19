@@ -3,7 +3,7 @@
 ## 📐 1. Network Topology & Subnet Design
 
 The lab simulates an enterprise DMZ pivot scenario where an external attacker breaches a dual-homed perimeter web server to gain access to the isolated internal Active Directory network.
-
+```text
        [ ATTACKER NETWORK ]                  [ DMZ / EXTERNAL ]                      [ INTERNAL AD NETWORK ]
   (Host-Only Adapter #3: 192.168.50.0/24)                                  (Host-Only Adapter #4: 10.10.10.0/24)
   
@@ -19,7 +19,7 @@ The lab simulates an enterprise DMZ pivot scenario where an external attacker br
                                                         |  Adapter 4 (eth1)                      |
                                                         |  IP: 10.10.10.5/24 (Host-Only #4)      |
                                                         +----------------------------------------+
-
+```
 ---
 
 ## 📊 2. Subnet & IP Allocation Matrix
