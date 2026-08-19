@@ -9,11 +9,11 @@
 - Network Adapter #3 ---> 192.168.50.0/24 
 - Network Adapter #4 ---> 10.10.10.0/24
 
-# 2.302 Setting up Virtual Machines
+# Setting up Virtual Machines
     
 A. Attacker Machine Setup (Kali)
-    we will add a new host only adapter (#3) with dhcp off to kali machine
-    edit the /etc/network/interfaces file with the below static ip's  
+    1. we will add a new host only adapter (#3) with dhcp off to kali machine
+    2. edit the /etc/network/interfaces file with the below static ip's
         • Installing and configuring
         • Gateway [192.168.50.1]
         • Attacker-Machine eth0 ---> [192.168.50.2/24] #3
@@ -21,8 +21,8 @@ A. Attacker Machine Setup (Kali)
      
 
 B. Web-Server Setup (Metasploitable)
-    we will add two new host only adapter (#3 and #4 )with dhcp off to the web server
-    edit the /etc/network/interfaces file with the below static ip's
+    1. we will add two new host only adapter (#3 and #4 )with dhcp off to the web server
+    2. edit the /etc/network/interfaces file with the below static ip's
         • Installing and configuring
         • Gateway [192.168.50.1]
         • Web-Server eth0 ---> [192.168.50.3/24] #3
