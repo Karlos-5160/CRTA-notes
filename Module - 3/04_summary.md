@@ -1,5 +1,4 @@
-```python
-summary_content = """# 🌐 Linux Dual-NIC Architecture & OS Routing Breakdown
+# 🌐 Linux Dual-NIC Architecture & OS Routing Breakdown
 
 ---
 
