@@ -1,4 +1,4 @@
-# 🔀 Network Pivoting, SOCKS Proxy & Proxychains 
+# 🔀 Network Pivoting, Dynamic Port Forwarding & Proxychains
 
 ## 📖 1. Core Fundamental Concepts
 
@@ -47,6 +47,8 @@ In enterprise networks and Red Team engagements, high-value identity infrastruct
 
 ## 🧠 3. Why Pivoting is Necessary (The Tooling Problem)
 
+### ❓ Why Not Just Use a Standard SSH Shell?
+
 When an attacker compromises a perimeter dual-homed server and obtains an interactive SSH shell:
 * **Tooling Absence:** The compromised host is just a server; it does not contain penetration testing toolsets (Impacket, BloodHound/SharpHound, CrackMapExec/NetExec, Responder, wordlists)[cite: 6].
 * **No GUI Capabilities:** Graphical clients (like `rdesktop` / `xfreerdp`) cannot be displayed or run natively inside a raw terminal shell on the pivot host[cite: 6].
@@ -54,6 +56,7 @@ When an attacker compromises a perimeter dual-homed server and obtains an intera
 
 **Pivoting solves this** by allowing the attacker to run all tools locally from their Kali machine while transparently relaying the network packets through the pivot host[cite: 6].
 
+> **Pivoting** allows the attacker to keep all tools, exploits, and wordlists locally on the Kali machine while transparently tunneling Layer-4/Layer-7 traffic through the compromised host into the internal subnet.
 ---
 
 ## ⚙️ 4. Configuring Proxychains (`/etc/proxychains4.conf`)
@@ -117,6 +120,15 @@ netstat -ant | grep 8090
 ss -tulpn | grep 8090
 ```
 *(You should see `127.0.0.1:8090` in `LISTEN` state)[cite: 6].*
+
+
+### Summary 
+1. **Local SOCKS Listener:** OpenSSH spawns a local **SOCKS4/SOCKS5 proxy** listening on `127.0.0.1:8090` on the Kali machine.
+2. **Encapsulated Tunnel:** Traffic directed to `localhost:8090` is encapsulated within the encrypted SSH transport layer and transmitted to `sshd` on the pivot host (`192.168.50.3`)[cite: 3].
+3. **Remote Egress Routing:** The pivot host's `sshd` unpacks the SOCKS request and asks its local OS kernel to connect to the internal target (e.g., `10.10.10.2:445`)[cite: 3].
+4. **Kernel Interface Selection:** The pivot host's kernel evaluates its own routing table:
+   * It identifies that `10.10.10.2` falls within `10.10.10.0/24` (attached to `eth1`)[cite: 3].
+   * It sends an ARP request on `eth1`, establishes the TCP handshake with the target, and streams the data back through the SSH tunnel.
 
 ---
 
