@@ -94,7 +94,7 @@ Older Linux targets (like Metasploitable 2) offer older key types (`ssh-rsa`, `s
 *Append to `~/.ssh/config` on Kali:*
 ```text
 Host 192.168.50.*
-    HostKeyAlgorithms +ssh-rsa,ssh-dss
+    HostKeyAlgorithms +ssh-rsa
     PubkeyAcceptedKeyTypes +ssh-rsa
 ```
 
