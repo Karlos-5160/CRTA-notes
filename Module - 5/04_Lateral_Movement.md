@@ -127,5 +127,3 @@ Invoke-Mimikatz -Command ' "sekurlsa::pth /user:Administrator /domain:cyberwarfa
 | **LSASS Memory Access** | In-memory extraction tools touching `lsass.exe` | **Sysmon Event ID 10** (Process Access to `lsass.exe` with granted access rights like `0x1010` or `0x1FFFFF`). |
 | **Explicit Credential Logons** | Spawning processes with alternate credentials (PtH) | **Windows Security Event ID 4648** (A logon was attempted using explicit credentials). |
 
-```
-```
