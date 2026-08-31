@@ -9,8 +9,6 @@
 | **LDAP**   | Lightweight Directory Access Protocol | Query/manage directory services such as AD        | **389**, LDAPS **636**                 |
 | **SMB**    | Server Message Block                  | File/printer sharing and Windows network services | **445**, older **139**                 |
 
-> One important distinction: **WS isn't really one specific Windows protocol like RDP or SMB.** If by “WS” you mean **Web Services**, it is a broad concept. If you meant **WS-Management / WSMan**, that's the web-services-based management protocol used by **WinRM**.
-
 ---
 
 # 1. RDP — Remote Desktop Protocol
