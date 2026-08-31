@@ -146,6 +146,3 @@ hashcat -m 13100 krb5tgs.txt /usr/share/wordlists/rockyou.txt --force
 | **Encryption Downgrade Prevention** | Disable RC4-HMAC encryption support for Kerberos and enforce **AES-128 / AES-256** encryption for service accounts. |
 | **Event Log Auditing** | Monitor **Windows Security Event ID 4769** (A Kerberos service ticket was requested). Alert on anomalous volumes of TGS requests with `Ticket Encryption Type: 0x17` (RC4) originating from non-administrative endpoints. |
 
-```
-
-```
