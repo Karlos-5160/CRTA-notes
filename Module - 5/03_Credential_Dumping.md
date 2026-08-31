@@ -118,9 +118,18 @@ Find-WMILocalAdminAccess -Verbose
 * **Mechanism:** Queries domain computers and attempts an authenticated WMI connection (`win32_computersystem`).
 * **Result:** Returns a list of hostnames/IPs where the currently elevated domain identity (`emp-svc`) can execute remote code, deploy implants, or continue lateral movement.
 
----
 
-## 🛡️ 7. Detection & Defensive Mitigations
+---
+## 7. Dot Sourcing
+    The difference lies in how PowerShell executes the script: whether it runs in a **new isolated child scope** or directly in your **current session scope**.
+
+* **`.\Invoke-Mimikatz.ps1`**: Runs the script in a **child scope**. Variables, functions, and modules defined inside the script are created temporarily and disappear as soon as the script finishes executing.
+* **`. .\Invoke-Mimikatz.ps1`** (with a dot and a space before the path, known as **dot-sourcing**): Runs the script in the **current scope**. Any functions (such as `Invoke-Mimikatz`) or variables defined inside the script are loaded directly into your active PowerShell session so you can actually call and use them.
+
+Using dot-sourcing is required when loading standalone PowerShell tool scripts like Mimikatz, PowerView, or PowerUp, because running them normally without the dot will execute any auto-run blocks if present, but will fail to expose the underlying command functions for you to use.
+
+---
+## 🛡️ 8. Detection & Defensive Mitigations
 
 | Threat Vector | Defensive Mitigation |
 | --- | --- |
