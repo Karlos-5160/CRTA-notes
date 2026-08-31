@@ -301,7 +301,7 @@ TCP 139
 
 # 7. NetBIOS
 
-**NetBIOS (Network Basic Input/Output System)** is an older Windows networking interface that allows computers on a local network to **identify each other and communicate using computer names**.
+**NetBIOS (Network Basic Input/Output System)** is a legacy software interface and application programming interface (API) that allows computers on a local network to **identify each other, share files or printers and communicate with each other using computer names**.
 
 Think of it as:
 
