@@ -27,10 +27,10 @@
 +---------------------------------------------------------------------------------------------------+
 |                                 KERBEROASTING ATTACK FLOW (STEP-BY-STEP)                          |
 +---------------------------------------------------------------------------------------------------+
-
-   [ Domain User (Attacker) ]                                          [ Domain Controller (KDC) ]
+    __________|_____________                                          ______________|___________
+   | Domain User (Employee) |                                         | Domain Controller (KDC) |
               |                                                                     |
-              | 1. AS-REQ: Authentication Request (Timestamp enc with user hash)   |
+              | 1. AS-REQ: Authentication Request (Timestamp enc with user hash)    |
               |-------------------------------------------------------------------->|
               |                                                                     |
               | 2. AS-REP: Returns TGT (Encrypted with KRBTGT hash)                 |
@@ -41,14 +41,14 @@
               |                                                                     |
               | 4. TGS-REP: Returns TGS Ticket (Encrypted with Service NTLM Hash!)  |
               |<--------------------------------------------------------------------|
-              |
-              |
-              +--- 5. Export Ticket (.kirbi) from memory via Mimikatz
-              |
-              v
-   [ Offline Cracking Engine ] (Kali / Hashcat / tgsrepcrack.py)
-              |
-              +---> 6. Brute-force NTLM Hash against password wordlist (RockYou)
+              |                                                                     |
+              |                                                                     |
+              +--- 5. Export Ticket (.kirbi) from memory via Mimikatz               |
+              |                                                                     |
+              v                                                                     |
+   [ Offline Cracking Engine ] (Kali / Hashcat / tgsrepcrack.py)                    |
+              |                                                                     |
+              +---> 6. Brute-force NTLM Hash against password wordlist (RockYou)    |
 
 ```
 
