@@ -106,6 +106,45 @@ After obtaining the decrypted SAM hashes:
 
 ---
 
+If you're talking about **Windows security**, **SAM** and **SASS** are different things. You may mean **LSASS** rather than SASS.
+
+## Easy explanation SAM vs LSASS
+
+| Feature      | **SAM**                                             | **LSASS**                                                         |
+| ------------ | --------------------------------------------------- | ----------------------------------------------------------------- |
+| Full name    | Security Account Manager                            | Local Security Authority Subsystem Service                        |
+| Type         | Registry database                                   | Windows process/service                                           |
+| Main purpose | Stores local user account information               | Enforces Windows security policies and handles authentication     |
+| Contains     | Local usernames and password hashes                 | Authentication/security credentials and security tokens in memory |
+| Location     | `C:\Windows\System32\config\SAM`                    | `C:\Windows\System32\lsass.exe`                                   |
+| Runs as      | Not a normal process                                | `lsass.exe` process                                               |
+| Example      | Local account `Administrator` and its password hash | Handles authentication when a user logs in                        |
+
+## Simple way to remember
+
+Think of Windows login like this:
+
+**SAM = the database**
+**LSASS = the security process that uses the database**
+
+For a local account:
+
+```text
+User enters password
+       ↓
+     LSASS
+       ↓
+   checks authentication
+       ↓
+     SAM
+       ↓
+password information/hash
+```
+
+**Important:** LSASS is a critical Windows security process. If you see `lsass.exe` running, that is normally expected. A malicious program can also try to impersonate or interact with it, so its location and behavior matter.
+
+
+
 ## 🛡️ 4. Defensive Mitigations & Detection
 
 | Attack Vector | Detection & Mitigation Strategy |
