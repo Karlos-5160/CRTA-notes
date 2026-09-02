@@ -8,6 +8,27 @@
 * **Why it works by design:** Any valid domain user can request a TGS ticket for *any* registered SPN in the Active Directory forest without triggering administrative permission checks.
 * **The Root Vulnerability:** The ticket portion returned by the Domain Controller is encrypted using the target service account’s **NTLM hash**. The attacker extracts this ciphertext and performs offline dictionary attacks without interacting with the Domain Controller again (preventing account lockouts).
 
+### What is SPN
+    A Service Principal Name (SPN) in Active Directory is a unique identifier for a service instance running on a network, used by the Kerberos authentication protocol to securely map a service to the account that runs it.
+    
+### How SPNs Work
+    
+    • Unique Address: Acts as a specific label so clients know exactly which machine and service account to talk to.
+    
+    • Kerberos Binding: When a client wants to connect to a service, it asks the Domain Controller for a ticket using the SPN.
+    
+    • Fallback Protection: Correctly configured SPNs allow secure Kerberos handshakes, preventing dangerous fallbacks to older protocols like NTLM.
+
+### SPN Structure
+    SPN StructureAn SPN string typically contains three main parts:
+        • Service Class: Identifies the type of service (e.g., MSSQLSvc for SQL Server or HTTP for web apps).
+        
+        • Host Name: The fully qualified domain name (FQDN) or NetBIOS name of the computer hosting the service.
+        
+        • Port (Optional): Used if the service runs on a non-standard port or shares a host with other instances (e.g., :1433).
+        
+**Example format: MSSQLSvc/sqlserver01.corp.local:1433**
+
 ---
 
 ## 👥 2. Service Account vs. Normal User Account
